@@ -1,1 +1,364 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>動詞のえいご3択ゲーム</title>
 
+<style>
+*{ box-sizing:border-box; }
+
+body{
+  margin:0;
+  font-family:Arial, sans-serif;
+  background:#fff7df;
+  color:#263044;
+  text-align:center;
+}
+
+.wrap{
+  max-width:430px;
+  margin:auto;
+  padding:16px;
+}
+
+h1{
+  font-size:24px;
+  color:#ff8c00;
+  margin:10px 0;
+}
+
+.status{
+  background:#fff;
+  border:3px solid #8ecae6;
+  border-radius:18px;
+  padding:10px;
+  font-weight:bold;
+  margin-bottom:12px;
+}
+
+.card{
+  background:#fff;
+  border:4px solid #ffb703;
+  border-radius:26px;
+  padding:18px;
+  margin-bottom:14px;
+}
+
+.verb-img{
+  font-size:82px;
+  margin:10px 0;
+}
+
+.question-en{
+  font-size:24px;
+  font-weight:bold;
+  color:#263044;
+  margin-top:8px;
+}
+
+.question-ja{
+  font-size:17px;
+  color:#607089;
+  margin-top:6px;
+}
+
+.choices{
+  display:grid;
+  gap:12px;
+  margin-top:14px;
+}
+
+.choice{
+  border:none;
+  background:#fff;
+  border-radius:22px;
+  padding:16px;
+  font-size:24px;
+  font-weight:bold;
+  color:#263044;
+  box-shadow:0 5px 0 #d8c8a0;
+  cursor:pointer;
+}
+
+.choice:active{
+  transform:translateY(4px);
+  box-shadow:0 1px 0 #d8c8a0;
+}
+
+.choice.correct{
+  background:#c9f7d5;
+  color:#2a9d8f;
+}
+
+.choice.wrong{
+  background:#ffd6cf;
+  color:#e76f51;
+  animation:shake 0.35s;
+}
+
+.result{
+  background:#fff;
+  border:4px solid #8ecae6;
+  border-radius:24px;
+  padding:16px;
+  margin-top:14px;
+  min-height:120px;
+}
+
+.message{
+  font-size:24px;
+  font-weight:bold;
+  color:#fb8500;
+}
+
+.answer{
+  font-size:34px;
+  font-weight:bold;
+  margin-top:8px;
+}
+
+.answer-ja{
+  font-size:22px;
+  margin-top:4px;
+}
+
+.buttons{
+  display:flex;
+  gap:10px;
+  justify-content:center;
+  margin-top:14px;
+}
+
+.control-btn{
+  border:none;
+  background:#ffb703;
+  color:#263044;
+  padding:12px 16px;
+  border-radius:22px;
+  font-size:16px;
+  font-weight:bold;
+  box-shadow:0 4px 0 #d89b00;
+  cursor:pointer;
+}
+
+.control-btn:active{
+  transform:translateY(3px);
+  box-shadow:0 1px 0 #d89b00;
+}
+
+.next-btn{
+  background:#8ecae6;
+  box-shadow:0 4px 0 #5f9fbd;
+}
+
+@keyframes shake{
+  0%{transform:translateX(0);}
+  25%{transform:translateX(-6px);}
+  50%{transform:translateX(6px);}
+  75%{transform:translateX(-6px);}
+  100%{transform:translateX(0);}
+}
+</style>
+</head>
+
+<body>
+<div class="wrap">
+
+  <h1>🎮 動詞のえいごゲーム</h1>
+
+  <div class="status">
+    ⭐ Score：<span id="score">0</span>　
+    <span id="count">1</span> / 10
+  </div>
+
+  <div class="card">
+    <div class="verb-img" id="verbImg">👦👏</div>
+
+    <div class="question-en">What is he doing?</div>
+    <div class="question-ja">なにをしているかな？</div>
+
+    <div class="choices" id="choices"></div>
+  </div>
+
+  <div class="result">
+    <div class="message" id="message">答えをえらんでね</div>
+    <div class="answer" id="answer">?</div>
+    <div class="answer-ja" id="answerJa"></div>
+  </div>
+
+  <div class="buttons">
+    <button class="control-btn" onclick="speakQuestion()">🔊 もう一回</button>
+    <button class="control-btn next-btn" onclick="nextQuestion()">つぎへ ▶</button>
+  </div>
+
+</div>
+
+<script>
+const words = [
+  { image:"👦👏", en:"clap", ja:"拍手する", speakJa:"はくしゅする" },
+  { image:"👦🏃", en:"run", ja:"走る", speakJa:"はしる" },
+  { image:"👦😴", en:"sleep", ja:"寝る", speakJa:"ねる" },
+  { image:"👦🍎", en:"eat", ja:"食べる", speakJa:"たべる" },
+  { image:"👦🥤", en:"drink", ja:"飲む", speakJa:"のむ" },
+  { image:"👦⬆️", en:"jump", ja:"ジャンプする", speakJa:"ジャンプする" },
+  { image:"👦📖", en:"read", ja:"読む", speakJa:"よむ" },
+  { image:"👦✏️", en:"write", ja:"書く", speakJa:"かく" },
+  { image:"👦🎤", en:"sing", ja:"歌う", speakJa:"うたう" },
+  { image:"👦💃", en:"dance", ja:"踊る", speakJa:"おどる" }
+];
+
+let quizList = [];
+let currentIndex = 0;
+let score = 0;
+let answered = false;
+
+function shuffle(array){
+  return [...array].sort(() => Math.random() - 0.5);
+}
+
+function startGame(){
+  quizList = shuffle(words).slice(0, 10);
+  currentIndex = 0;
+  score = 0;
+  answered = false;
+
+  document.getElementById("score").textContent = score;
+  showQuestion();
+}
+
+function showQuestion(){
+  answered = false;
+
+  const q = quizList[currentIndex];
+
+  document.getElementById("count").textContent = currentIndex + 1;
+  document.getElementById("verbImg").textContent = q.image;
+  document.getElementById("message").textContent = "答えをえらんでね";
+  document.getElementById("answer").textContent = "?";
+  document.getElementById("answerJa").textContent = "";
+
+  const wrongChoices = words
+    .filter(item => item.en !== q.en)
+    .sort(() => Math.random() - 0.5)
+    .slice(0, 2);
+
+  const choices = shuffle([q, ...wrongChoices]);
+
+  const choicesBox = document.getElementById("choices");
+  choicesBox.innerHTML = "";
+
+  choices.forEach(choice => {
+    const btn = document.createElement("button");
+    btn.className = "choice";
+    btn.textContent = choice.en;
+    btn.onclick = () => checkAnswer(btn, choice);
+    choicesBox.appendChild(btn);
+  });
+
+  speakQuestion();
+}
+
+function checkAnswer(button, choice){
+  if(answered) return;
+
+  const q = quizList[currentIndex];
+
+  if(choice.en === q.en){
+    answered = true;
+    score++;
+
+    document.getElementById("score").textContent = score;
+    document.getElementById("message").textContent = "🎉 Great!";
+    document.getElementById("answer").textContent = `${q.image} ${q.en}`;
+    document.getElementById("answerJa").textContent = q.ja;
+
+    button.classList.add("correct");
+    speakEnglishThenJapanese(q.en, q.speakJa);
+
+  }else{
+    button.classList.add("wrong");
+    document.getElementById("message").textContent = "もう一回えらんでね";
+
+    setTimeout(() => {
+      button.classList.remove("wrong");
+    }, 500);
+
+    speakTryAgain();
+  }
+}
+
+function nextQuestion(){
+  if(currentIndex < quizList.length - 1){
+    currentIndex++;
+    showQuestion();
+  }else{
+    showFinish();
+  }
+}
+
+function showFinish(){
+  document.getElementById("verbImg").textContent = "🎊";
+  document.querySelector(".question-en").textContent = "Complete!";
+  document.querySelector(".question-ja").textContent = "よくできました";
+
+  document.getElementById("choices").innerHTML = "";
+
+  document.getElementById("message").textContent = "おしまい！";
+  document.getElementById("answer").textContent = `⭐ ${score} / 10`;
+  document.getElementById("answerJa").textContent = "もう一回やってみよう";
+
+  const choicesBox = document.getElementById("choices");
+  const btn = document.createElement("button");
+  btn.className = "choice";
+  btn.textContent = "もう一回";
+  btn.onclick = startGame;
+  choicesBox.appendChild(btn);
+}
+
+function speakQuestion(){
+  const q = quizList[currentIndex];
+  if(!q) return;
+
+  speechSynthesis.cancel();
+
+  const voice = new SpeechSynthesisUtterance(q.en);
+  voice.lang = "en-US";
+  voice.rate = 0.75;
+
+  speechSynthesis.speak(voice);
+}
+
+function speakTryAgain(){
+  speechSynthesis.cancel();
+
+  const voice = new SpeechSynthesisUtterance("try again");
+  voice.lang = "en-US";
+  voice.rate = 0.8;
+
+  speechSynthesis.speak(voice);
+}
+
+function speakEnglishThenJapanese(word, japanese){
+  speechSynthesis.cancel();
+
+  const english = new SpeechSynthesisUtterance(word);
+  english.lang = "en-US";
+  english.rate = 0.75;
+
+  const japaneseVoice = new SpeechSynthesisUtterance(japanese);
+  japaneseVoice.lang = "ja-JP";
+  japaneseVoice.rate = 0.9;
+
+  english.onend = () => {
+    speechSynthesis.speak(japaneseVoice);
+  };
+
+  speechSynthesis.speak(english);
+}
+
+startGame();
+</script>
+
+</body>
+</html>
