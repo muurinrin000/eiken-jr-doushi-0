@@ -535,7 +535,11 @@ const words = [
   let currentResult = null;
 
   const $ = id => document.getElementById(id);
-  const STORAGE_KEY = "placePngGameSettings";
+const STORAGE_KEY = "placePngGameSettings";
+
+// 追加
+const audioCtx =
+  new (window.AudioContext || window.webkitAudioContext)();
 
   function shuffle(arr){
     return arr.slice().sort(() => Math.random() - 0.5);
