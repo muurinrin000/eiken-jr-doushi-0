@@ -913,8 +913,11 @@ function playWrongSound(){
     speak("Can you hear me?","en-US",0.8);
   };
 
-  $("startBtn").onclick = () => {
-    answerHistory = [];
+$("startBtn").onclick = () => {
+
+  audioCtx.resume();
+
+  answerHistory = [];
     currentResult = null;
     questionIndex = 0;
     score = 0;
