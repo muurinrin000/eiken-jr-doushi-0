@@ -478,20 +478,27 @@ h1{margin:8px 0 4px;font-size:25px;}
 
 <script>
 (function(){
-  const words = [
-    { image:"images/restaurant.png", en:"restaurant", jp:"レストラン", speakJp:"レストラン" },
-    { image:"images/supermarket.png", en:"supermarket", jp:"スーパー", speakJp:"スーパー" },
-    { image:"images/bank.png", en:"bank", jp:"銀行", speakJp:"ぎんこう" },
-    { image:"images/hotel.png", en:"hotel", jp:"ホテル", speakJp:"ホテル" },
-    { image:"images/hospital.png", en:"hospital", jp:"病院", speakJp:"びょういん" },
-    { image:"images/store.png", en:"store", jp:"店", speakJp:"みせ" },
-    { image:"images/bus-stop.png", en:"bus stop", jp:"バス停", speakJp:"バスてい" },
-    { image:"images/airport.png", en:"airport", jp:"空港", speakJp:"くうこう" },
-    { image:"images/station.png", en:"station", jp:"駅", speakJp:"えき" },
-    { image:"images/market.png", en:"market", jp:"市場", speakJp:"いちば" },
-    { image:"images/park.png", en:"park", jp:"公園", speakJp:"こうえん" }
-  ];
-
+const words = [
+  {
+    image:"images/dancing.png",
+    en:"dancing",
+    jp:"おどっている",
+    speakJp:"おどっている"
+  },
+  {
+    image:"images/fishing.png",
+    en:"fishing",
+    jp:"さかなつりをしている",
+    speakJp:"さかなつりをしている"
+  },
+  {
+    image:"images/flying.png",
+    en:"flying",
+    jp:"とんでいる",
+    speakJp:"とんでいる"
+  }
+];
+  
   let activeWords = words.slice();
   let wrongWords = [];
   let questionIndex = 0;
